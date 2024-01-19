@@ -20,6 +20,9 @@ while True:
             add_notes(notes, field_values)
             msgbox("Заметка успешно добавлена!")
             
+    elif choice == 'Просмотреть все заметки':
+        view_all_notes(notes)
+            
     elif choice == 'Выход':
         msgbox("Всего хорошего, Стол заметок закрыт!")
         break

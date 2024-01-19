@@ -36,3 +36,4 @@ def delete_notes(notes, index):
         del notes[index]
         save_notes(notes)
         msgbox("Заметка успешно удалена!")
+        
