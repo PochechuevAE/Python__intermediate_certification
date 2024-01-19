@@ -19,7 +19,7 @@ def add_notes(notes, data):
     
 def view_all_notes(notes):
     if not notes:
-        msgbox("Справочник пуст", 'Телефонный справочник')
+        msgbox("Стол заметок пуст.", 'Стол заметок.')
         return
 
     msg = ""
