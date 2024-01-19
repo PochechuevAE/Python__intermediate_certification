@@ -37,3 +37,22 @@ def delete_notes(notes, index):
         save_notes(notes)
         msgbox("Заметка успешно удалена!")
         
+def edit_notes(notes, index):
+        note = notes[index]
+        msg = "Измените заметку"
+        title = "Карточка заметки"
+        filed_names = ["Идентификатор","Заголовок","Тело заметки", "Дата/время создания/изменения"]
+        faled_values = multenterbox(msg, title, filed_names, 
+                                    values=[note['Идентификатор'], note['Заголовок'],
+                                            note['Тело заметки'], note['Дата/время создания/изменения']])
+        
+        if faled_values:
+            notes[index] = {"Идентификатор": faled_values[0], 
+                           "Заголовок": faled_values[1], "Тело заметки": faled_values[2], 
+                           "Дата/время создания/изменения": faled_values[3]}
+            save_notes(notes)
+            msgbox("Заметка успешно изменена!")
+            
+def search_by_date(notes, date):
+    found_notes = [note for note in notes if note['Дата/время создания/изменения'] == date]
+    return found_notes
