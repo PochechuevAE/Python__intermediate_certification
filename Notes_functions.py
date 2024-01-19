@@ -27,3 +27,12 @@ def view_all_notes(notes):
         msg += f"{notes['Идентификатор']} {notes['Заголовок']} {notes['Тело заметки']}: {notes['Дата/время создания/изменения']}\n"
     
     msgbox(msg, 'Стол заметок')
+    
+def delete_notes(notes, index):
+    note = notes[index]
+    confirmation = ynbox(f"Вы уверены, что хотите удалить заметку:\n{note['Идентификатор']} {note['Заголовок']} {note['Тело заметки']}?", 'Удаление заметки')
+    
+    if confirmation:
+        del notes[index]
+        save_notes(notes)
+        msgbox("Заметка успешно удалена!")
