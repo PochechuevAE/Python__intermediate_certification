@@ -26,4 +26,4 @@ def view_all_notes(notes):
     for notes in notes:
         msg += f"{notes['Идентификатор']} {notes['Заголовок']} {notes['Тело заметки']}: {notes['Дата/время создания/изменения']}\n"
     
-    msgbox(msg, 'Программа для заметок')
+    msgbox(msg, 'Стол заметок')
