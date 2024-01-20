@@ -39,16 +39,68 @@ def add_notes(notes, data):
 
 
 def view_all_notes(notes):
-    if not notes:
-        msgbox("Стол заметок пуст.", 'Стол заметок.')
-        return
+    while True:
+        if not notes:
+            msgbox("Стол заметок пуст.", 'Стол заметок.')
+            return
 
-    msg = ""
-    for note in notes:
-        msg += f"{note['Тема заметки']} {note['Заголовок']
-                                         } {note['Текст заметки']} {note['Дата/время создания/изменения']}\n"
+        # Создаем список строк для представления заметок в виде "Тема: Заголовок"
+        note_strings = [f"{note['Тема заметки']}: {note['Заголовок']}" for note in notes]
 
-    msgbox(msg, 'Стол заметок')
+        if len(notes) == 1:
+            # Если всего одна заметка, выводим сообщение и затем заметку
+            msgbox(f"Заметка всего одна: {note_strings[0]}", 'Стол заметок')
+            display_note_info(notes[0])
+
+            # После просмотра заметки, предлагаем пользователю вернуться к списку или выйти
+            choices = ['Вернуться к списку', 'Выйти в главное меню']
+            return_choice = buttonbox("Выберите действие", "Просмотр заметок", choices)
+
+            if return_choice == 'Выйти в главное меню':
+                return
+            elif return_choice == 'Вернуться к списку':
+                continue  # возврат к списку при одной заметке
+            else:
+                msgbox("Просмотр заметок отменён", 'Стол заметок')
+                return
+        else:
+            # Пользователь выбирает заметку из списка
+            chosen_note = choicebox("Выберите заметку", "Стол заметок", note_strings)
+
+            if chosen_note is None:  # нажата кнопка "Cancel"
+                msgbox("Просмотр заметок отменён", 'Стол заметок')
+                return
+
+            # Ищем выбранную заметку в списке
+            chosen_index = note_strings.index(chosen_note)
+
+            # Отображаем полную информацию о выбранной заметке
+            display_note_info(notes[chosen_index])
+
+            # После просмотра заметки, предлагаем пользователю вернуться к списку или выйти
+            choices = ['Вернуться к списку', 'Выйти в главное меню']
+            return_choice = buttonbox("Выберите действие", "Просмотр заметок", choices)
+
+            if return_choice == 'Выйти в главное меню':
+                return
+            elif return_choice == 'Вернуться к списку':
+                continue  # возврат к списку при выборе заметки
+            else:
+                msgbox("Просмотр заметок отменён", 'Стол заметок')
+                return
+
+
+
+
+def display_note_info(note):
+    # Форматируем информацию о заметке
+    note_info = f"Тема заметки: {note['Тема заметки']}\n" \
+                f"Заголовок: {note['Заголовок']}\n" \
+                f"Текст заметки: {note['Текст заметки']}\n" \
+                f"Дата/время создания/изменения: {note['Дата/время создания/изменения']}"
+
+    # Отображаем информацию в новом окне
+    msgbox(note_info, 'Полная информация о заметке')
 
 
 def delete_notes(notes, index):
@@ -87,19 +139,22 @@ def edit_notes(notes, index):
 
 
 def search_by_date(notes):
-    if not notes:
-        msgbox("Стол заметок пуст. Нельзя выбрать заметку по дате.", 'Стол заметок')
-        return
+    while True:
+        if not notes:
+            msgbox("Стол заметок пуст. Нельзя выбрать заметку по дате.", 'Стол заметок')
+            return
 
-    unique_dates = set(
-        note['Дата/время создания/изменения'].split()[0] for note in notes)
-    unique_dates = list(unique_dates)
+        unique_dates = set(
+            note['Дата/время создания/изменения'].split()[0] for note in notes)
+        unique_dates = list(unique_dates)
 
-    if unique_dates:
-        date = enterbox(
-            "Введите дату для фильтрации (гггг-мм-дд):", "Выборка по дате")
+        if unique_dates:
+            date = enterbox(
+                "Введите дату для фильтрации (гггг-мм-дд):", "Выборка по дате")
 
-        if date:
+            if date is None:
+                msgbox("Выбор даты отменен", "Выборка по дате")
+                return
 
             found_notes = [
                 note for note in notes if note['Дата/время создания/изменения'].startswith(date)]
@@ -116,14 +171,48 @@ def search_by_date(notes):
                     found_notes, key=lambda x: x['Дата/время создания/изменения'], reverse=True)
 
             msg = ""
+            note_info = []
+
             for note in found_notes:
-                msg += f"{note['Тема заметки']} {note['Заголовок']} {
-                    note['Текст заметки']}: {note['Дата/время создания/изменения']}\n"
-            msgbox(msg, 'Результат поиска')
+                note_info.append(
+                    f"{note['Тема заметки']} {note['Заголовок']}: {note['Дата/время создания/изменения']}")
+
+            if note_info:
+                if len(note_info) == 1:
+                    msgbox(note_info[0], f'Заметка за {date}')
+                    display_note_info(found_notes[0])
+                else:
+                    # Пользователь выбирает заметку для подробного просмотра
+                    choice = choicebox("Выберите заметку для подробного просмотра", "Выборка по дате", note_info)
+
+                    if choice:
+                        index = note_info.index(choice)
+                        display_note_info(found_notes[index])
+
+                        # После просмотра заметки, предлагаем пользователю вернуться к списку или выйти
+                        choices = ['Вернуться к списку', 'Выйти в главное меню']
+                        return_choice = buttonbox("Выберите действие", "Просмотр заметок", choices)
+
+                        if return_choice == 'Выйти в главное меню':
+                            return
+                        elif return_choice == 'Вернуться к списку':
+                            choice = choicebox("Выберите заметку для подробного просмотра", "Выборка по дате", note_info)
+                            if choice:
+                                index = note_info.index(choice)
+                                display_note_info(found_notes[index])
+                                
+                                choices = ['Вернуться к списку', 'Выйти в главное меню']
+                                return_choice = buttonbox("Выберите действие", "Просмотр заметок", choices)
+                        else:
+                            msgbox("Просмотр заметок отменён", 'Стол заметок')
+                            return
+            else:
+                msgbox(f"Заметок за {date} не найдено.", 'Результат поиска')
         else:
-            msgbox("Пожалуйста, введите дату.", 'Выборка по дате')
-    else:
-        msgbox("Стол заметок пуст. Нельзя выбрать заметку по дате.", 'Стол заметок')
+            msgbox("Стол заметок пуст. Нельзя выбрать заметку по дате.", 'Стол заметок')
+            return
+
+
 
 
 def get_all_topics(notes):
@@ -147,13 +236,42 @@ def search_by_topic(notes):
         found_notes = [
             note for note in notes if note['Тема заметки'].lower() == chosen_topic.lower()]
 
-        msg = ""
-        for note in found_notes:
-            msg += f"{note['Тема заметки']} {note['Заголовок']
-                                             } {note['Текст заметки']}: {note['Дата/время создания/изменения']}\n"
+        note_info = [
+            f"{note['Тема заметки']} {note['Заголовок']}" for note in found_notes]
 
-        msgbox(msg, f'Заметки с темой: {chosen_topic}')
+        if note_info:
+            if len(note_info) == 1:
+                msgbox(note_info[0], f'Заметки с темой: {chosen_topic}')
+                display_note_info(found_notes[0])
+            else:
+                # Пользователь выбирает заметку для подробного просмотра
+                choice = choicebox("Выберите заметку для подробного просмотра", f"Заметки с темой: {chosen_topic}", note_info)
 
-        return found_notes
+                if choice:
+                    index = note_info.index(choice)
+                    display_note_info(found_notes[index])
+
+                    # После просмотра заметки, предлагаем пользователю вернуться к списку или выйти
+                    choices = ['Вернуться к списку', 'Выйти в главное меню']
+                    return_choice = buttonbox("Выберите действие", "Просмотр заметок", choices)
+
+                    if return_choice == 'Выйти в главное меню':
+                        return []
+                    elif return_choice == 'Вернуться к списку':
+                        choice = choicebox("Выберите заметку для подробного просмотра", f"Заметки с темой: {chosen_topic}", note_info)
+
+                        if choice:
+                            index = note_info.index(choice)
+                            display_note_info(found_notes[index])
+
+                            # После просмотра заметки, предлагаем пользователю вернуться к списку или выйти
+                            choices = ['Вернуться к списку', 'Выйти в главное меню']
+                            return_choice = buttonbox("Выберите действие", "Просмотр заметок", choices)  # возврат к списку при выборе заметки
+                    else:
+                        msgbox("Просмотр заметок отменён", 'Стол заметок')
+                        return found_notes
+        else:
+            msgbox(f"Заметок с темой {chosen_topic} не найдено.", 'Результат поиска')
+            return []
     else:
         return []
