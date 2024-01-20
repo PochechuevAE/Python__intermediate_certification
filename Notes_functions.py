@@ -1,5 +1,6 @@
 from easygui import *
 import json
+from datetime import datetime
 
 def load_notes():
     try:
@@ -8,51 +9,124 @@ def load_notes():
         return notes
     except FileNotFoundError:
         return []
-    
+
 def save_notes(notes):
     with open("notes.json", "w") as file:
         json.dump(notes, file, indent=2)
-        
+
+def get_current_datetime():
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d %H:%M:%S")
+
 def add_notes(notes, data):
-    notes.append({"Идентификатор": data[0], "Заголовок": data[1], "Тело заметки": data[2], "Дата/время создания/изменения": data[3]})
+    current_datetime = get_current_datetime()
+    notes.append({
+        "Тема заметки": data[0],
+        "Заголовок": data[1],
+        "Тело заметки": data[2],
+        "Дата/время создания/изменения": current_datetime
+    })
     save_notes(notes)
-    
+
 def view_all_notes(notes):
     if not notes:
         msgbox("Стол заметок пуст.", 'Стол заметок.')
         return
 
     msg = ""
-    for notes in notes:
-        msg += f"{notes['Идентификатор']} {notes['Заголовок']} {notes['Тело заметки']}: {notes['Дата/время создания/изменения']}\n"
-    
+    for note in notes:
+        msg += f"{note['Тема заметки']} {note['Заголовок']} {note['Тело заметки']}: {note['Дата/время создания/изменения']}\n"
+
     msgbox(msg, 'Стол заметок')
-    
+
 def delete_notes(notes, index):
     note = notes[index]
-    confirmation = ynbox(f"Вы уверены, что хотите удалить заметку:\n{note['Идентификатор']} {note['Заголовок']} {note['Тело заметки']}?", 'Удаление заметки')
-    
+    confirmation = ynbox(f"Вы уверены, что хотите удалить заметку:\n{note['Тема заметки']} {note['Заголовок']} {note['Тело заметки']}?",
+                         'Удаление заметки')
+
     if confirmation:
         del notes[index]
         save_notes(notes)
         msgbox("Заметка успешно удалена!")
-        
+
 def edit_notes(notes, index):
-        note = notes[index]
-        msg = "Измените заметку"
-        title = "Карточка заметки"
-        filed_names = ["Идентификатор","Заголовок","Тело заметки", "Дата/время создания/изменения"]
-        faled_values = multenterbox(msg, title, filed_names, 
-                                    values=[note['Идентификатор'], note['Заголовок'],
-                                            note['Тело заметки'], note['Дата/время создания/изменения']])
-        
-        if faled_values:
-            notes[index] = {"Идентификатор": faled_values[0], 
-                           "Заголовок": faled_values[1], "Тело заметки": faled_values[2], 
-                           "Дата/время создания/изменения": faled_values[3]}
-            save_notes(notes)
-            msgbox("Заметка успешно изменена!")
+    note = notes[index]
+    msg = "Измените заметку"
+    title = "Карточка заметки"
+    field_names = ["Тема заметки", "Заголовок", "Тело заметки"]
+    field_values = multenterbox(msg, title, field_names,
+                                values=[note['Тема заметки'], note['Заголовок'], note['Тело заметки']])
+
+    if field_values:
+        current_datetime = get_current_datetime()
+        notes[index] = {
+            "Тема заметки": field_values[0],
+            "Заголовок": field_values[1],
+            "Тело заметки": field_values[2],
+            "Дата/время создания/изменения": current_datetime
+        }
+        save_notes(notes)
+        msgbox("Заметка успешно изменена!")
+
+def search_by_date(notes):
+    if not notes:
+        msgbox("Стол заметок пуст. Нельзя выбрать заметку по дате.", 'Стол заметок')
+        return
+
+    
+    unique_dates = set(note['Дата/время создания/изменения'].split()[0] for note in notes)
+    unique_dates = list(unique_dates)
+
+    
+    if unique_dates:
+        date = enterbox("Введите дату для фильтрации (гггг-мм-дд):", "Выборка по дате")
+
+        if date:
             
-def search_by_date(notes, date):
-    found_notes = [note for note in notes if note['Дата/время создания/изменения'] == date]
-    return found_notes
+            found_notes = [note for note in notes if note['Дата/время создания/изменения'].startswith(date)]
+
+          
+            choices = ["По возрастанию", "По убыванию"]
+            sort_order = choicebox("Выберите порядок сортировки", "Сортировка", choices)
+
+            if sort_order == "По возрастанию":
+                found_notes = sorted(found_notes, key=lambda x: x['Дата/время создания/изменения'])
+            elif sort_order == "По убыванию":
+                found_notes = sorted(found_notes, key=lambda x: x['Дата/время создания/изменения'], reverse=True)
+
+            
+            msg = ""
+            for note in found_notes:
+                msg += f"{note['Тема заметки']} {note['Заголовок']} {note['Тело заметки']}: {note['Дата/время создания/изменения']}\n"
+            msgbox(msg, 'Результат поиска')
+        else:
+            msgbox("Пожалуйста, введите дату.", 'Выборка по дате')
+    else:
+        msgbox("Стол заметок пуст. Нельзя выбрать заметку по дате.", 'Стол заметок')
+
+def get_all_topics(notes):
+    return list(set(note['Тема заметки'] for note in notes))
+
+def search_by_topic(notes):
+    all_topics = get_all_topics(notes)
+    
+    if not all_topics:
+        msgbox("Нет доступных тем.", 'Стол заметок')
+        return []
+
+    chosen_topic = choicebox("Выберите тему", "Стол заметок", all_topics)
+    
+    if chosen_topic:
+        
+        found_notes = [note for note in notes if note['Тема заметки'] == chosen_topic]
+
+       
+        msg = ""
+        for note in found_notes:
+            msg += f"{note['Тема заметки']} {note['Заголовок']} {note['Тело заметки']}: {note['Дата/время создания/изменения']}\n"
+        
+        msgbox(msg, f'Заметки с темой: {chosen_topic}')
+        
+        return found_notes
+    else:
+        return []
