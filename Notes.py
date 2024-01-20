@@ -13,7 +13,7 @@ while True:
     if choice == 'Добавить заметку':
         msg = "Введите заметку"
         title = "Карточка заметки"
-        field_names = ["Тема заметки", "Заголовок", "Тело заметки"]
+        field_names = ["Тема заметки", "Заголовок", "Текст заметки"]
         field_values = multenterbox(msg, title, field_names)
 
         if field_values:
@@ -28,7 +28,7 @@ while True:
         else:
             try:
                 note_names = [f"{note['Тема заметки']} {note['Заголовок']} {
-                    note['Тело заметки']}" for note in notes]
+                    note['Текст заметки']}" for note in notes]
                 choice = choicebox(
                     "Выберите заметку для изменения", "Стол заметок", note_names)
                 if choice:
@@ -50,7 +50,7 @@ while True:
             else:
                 try:
                     note_names = [f"{note['Тема заметки']} {note['Заголовок']} {
-                        note['Тело заметки']}" for note in notes]
+                        note['Текст заметки']}" for note in notes]
                     choice = choicebox(
                         "Выберите заметку для удаления", "Стол заметок", note_names)
 

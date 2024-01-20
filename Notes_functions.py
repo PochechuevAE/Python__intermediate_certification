@@ -31,7 +31,7 @@ def add_notes(notes, data):
         notes.append({
             "Тема заметки": data[0],
             "Заголовок": data[1],
-            "Тело заметки": data[2],
+            "Текст заметки": data[2],
             "Дата/время создания/изменения": current_datetime
         })
         save_notes(notes)
@@ -46,14 +46,14 @@ def view_all_notes(notes):
     msg = ""
     for note in notes:
         msg += f"{note['Тема заметки']} {note['Заголовок']
-                                         } {note['Тело заметки']}: {note['Дата/время создания/изменения']}\n"
+                                         } {note['Текст заметки']}: {note['Дата/время создания/изменения']}\n"
 
     msgbox(msg, 'Стол заметок')
 
 
 def delete_notes(notes, index):
     note = notes[index]
-    confirmation = ynbox(f"Вы уверены, что хотите удалить заметку:\n{note['Тема заметки']} {note['Заголовок']} {note['Тело заметки']}?",
+    confirmation = ynbox(f"Вы уверены, что хотите удалить заметку:\n{note['Тема заметки']} {note['Заголовок']} {note['Текст заметки']}?",
                          'Удаление заметки')
 
     if confirmation:
@@ -66,10 +66,10 @@ def edit_notes(notes, index):
     note = notes[index]
     msg = "Измените заметку"
     title = "Карточка заметки"
-    field_names = ["Тема заметки", "Заголовок", "Тело заметки"]
+    field_names = ["Тема заметки", "Заголовок", "Текст заметки"]
 
     field_values = multenterbox(msg, title, field_names, values=[
-                                note['Тема заметки'], note['Заголовок'], note['Тело заметки']])
+                                note['Тема заметки'], note['Заголовок'], note['Текст заметки']])
 
     if not field_values or any(value.strip() == "" for value in field_values):
         msgbox("Вы заполнили не все поля, повторите ввод.", 'Ошибка ввода')
@@ -79,7 +79,7 @@ def edit_notes(notes, index):
         notes[index] = {
             "Тема заметки": field_values[0],
             "Заголовок": field_values[1],
-            "Тело заметки": field_values[2],
+            "Текст заметки": field_values[2],
             "Дата/время создания/изменения": current_datetime
         }
         save_notes(notes)
@@ -118,7 +118,7 @@ def search_by_date(notes):
             msg = ""
             for note in found_notes:
                 msg += f"{note['Тема заметки']} {note['Заголовок']} {
-                    note['Тело заметки']}: {note['Дата/время создания/изменения']}\n"
+                    note['Текст заметки']}: {note['Дата/время создания/изменения']}\n"
             msgbox(msg, 'Результат поиска')
         else:
             msgbox("Пожалуйста, введите дату.", 'Выборка по дате')
@@ -150,7 +150,7 @@ def search_by_topic(notes):
         msg = ""
         for note in found_notes:
             msg += f"{note['Тема заметки']} {note['Заголовок']
-                                             } {note['Тело заметки']}: {note['Дата/время создания/изменения']}\n"
+                                             } {note['Текст заметки']}: {note['Дата/время создания/изменения']}\n"
 
         msgbox(msg, f'Заметки с темой: {chosen_topic}')
 
