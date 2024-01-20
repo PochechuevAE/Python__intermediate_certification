@@ -114,13 +114,15 @@ def search_by_topic(notes):
         msgbox("Нет доступных тем.", 'Стол заметок')
         return []
 
-    chosen_topic = choicebox("Выберите тему", "Стол заметок", all_topics)
-    
-    if chosen_topic:
-        
-        found_notes = [note for note in notes if note['Тема заметки'] == chosen_topic]
+    if len(all_topics) == 1:
+        chosen_topic = all_topics[0]
+        msgbox(f"Создана одна тема: {chosen_topic}", 'Стол заметок')
+    else:
+        chosen_topic = choicebox("Выберите тему", "Стол заметок", all_topics)
 
-       
+    if chosen_topic:
+        found_notes = [note for note in notes if note['Тема заметки'].lower() == chosen_topic.lower()]
+
         msg = ""
         for note in found_notes:
             msg += f"{note['Тема заметки']} {note['Заголовок']} {note['Тело заметки']}: {note['Дата/время создания/изменения']}\n"
