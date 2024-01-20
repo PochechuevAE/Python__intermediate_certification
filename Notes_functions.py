@@ -20,13 +20,18 @@ def get_current_datetime():
 
 def add_notes(notes, data):
     current_datetime = get_current_datetime()
-    notes.append({
-        "Тема заметки": data[0],
-        "Заголовок": data[1],
-        "Тело заметки": data[2],
-        "Дата/время создания/изменения": current_datetime
-    })
-    save_notes(notes)
+    if not all(data):
+        msgbox("Вы заполнили не все поля, повторите ввод.", 'Ошибка ввода')
+        return
+    else:
+        notes.append({
+            "Тема заметки": data[0],
+            "Заголовок": data[1],
+            "Тело заметки": data[2],
+            "Дата/время создания/изменения": current_datetime
+        })
+        save_notes(notes)
+        msgbox("Заметка успешно добавлена!")
 
 def view_all_notes(notes):
     if not notes:
@@ -54,10 +59,13 @@ def edit_notes(notes, index):
     msg = "Измените заметку"
     title = "Карточка заметки"
     field_names = ["Тема заметки", "Заголовок", "Тело заметки"]
-    field_values = multenterbox(msg, title, field_names,
-                                values=[note['Тема заметки'], note['Заголовок'], note['Тело заметки']])
-
-    if field_values:
+    
+    field_values = multenterbox(msg, title, field_names, values=[note['Тема заметки'], note['Заголовок'], note['Тело заметки']])
+    
+    if not field_values or any(value.strip() == "" for value in field_values):
+        msgbox("Вы заполнили не все поля, повторите ввод.", 'Ошибка ввода')
+        return
+    else:
         current_datetime = get_current_datetime()
         notes[index] = {
             "Тема заметки": field_values[0],
@@ -67,6 +75,7 @@ def edit_notes(notes, index):
         }
         save_notes(notes)
         msgbox("Заметка успешно изменена!")
+
 
 def search_by_date(notes):
     if not notes:
